@@ -1,0 +1,39 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens. The brand accent is Naija green (#008751); the scale below is generated
+ * around it so utilities like `bg-accent-600`, `text-accent-700`, `ring-accent-500` are available
+ * throughout the app. Rounded corners and a soft neutral surface complete the professional look.
+ */
+@theme {
+  --color-accent-50: #e9f7ef;
+  --color-accent-100: #c6ead4;
+  --color-accent-200: #92d6ab;
+  --color-accent-300: #5ec081;
+  --color-accent-400: #2ba75c;
+  --color-accent-500: #008751;
+  --color-accent-600: #007347;
+  --color-accent-700: #005e3a;
+  --color-accent-800: #00482d;
+  --color-accent-900: #00331f;
+
+  --radius-card: 0.875rem;
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased;
+    font-family: var(--font-sans);
+  }
+
+  /* Consistent focus ring on every interactive element. */
+  :where(a, button, input, select, textarea):focus-visible {
+    @apply outline-none ring-2 ring-accent-500 ring-offset-2 ring-offset-slate-50;
+  }
+}
