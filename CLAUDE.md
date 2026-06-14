@@ -1,7 +1,7 @@
 # CLAUDE.md — Frontend (TradeNaija Web)
 
 This is the web client for **TradeNaija**, talking to the FifeN .NET 9 backend. The API contract is
-documented in [`../FRONTEND_PDR.md`](../FRONTEND_PDR.md) — **that PDR is the source of truth for every
+documented in [`FRONTEND_PDR.md`](FRONTEND_PDR.md) — **that PDR is the source of truth for every
 endpoint, request/response shape, validation rule, and error code.** Read it before adding a feature.
 
 ## Tech Stack
