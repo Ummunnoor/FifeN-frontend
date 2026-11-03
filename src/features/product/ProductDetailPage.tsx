@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CheckBadgeIcon } from '@heroicons/react/20/solid';
 import { ChatBubbleLeftRightIcon, FlagIcon, MapPinIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
-import { useApi } from '@/shared/hooks/useApi';
+import { useApi, useMutation } from '@/shared/hooks/useApi';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { Badge } from '@/shared/components/Badge';
 import { Button } from '@/shared/components/Button';
@@ -12,20 +12,19 @@ import { LoadingState, ErrorState } from '@/shared/components/StateViews';
 import { formatDate, formatPrice, humanizeEnum } from '@/shared/lib/format';
 import { ProductService } from '@/features/product/ProductService';
 import { ImageGallery } from '@/features/product/components/ImageGallery';
-import { ExpressInterestDialog } from '@/features/product/components/ExpressInterestDialog';
 import { ReviewList } from '@/features/product/components/ReviewList';
 import { ReviewFormDialog } from '@/features/product/components/ReviewFormDialog';
 import { ReportDialog } from '@/features/reports/ReportDialog';
 
-/** Public listing detail with gallery, vendor info, reviews, and the WhatsApp lead CTA (PDR §2.3). */
+/** Public listing detail with gallery, vendor info, reviews, and the in-app chat CTA. */
 export function ProductDetailPage() {
   const { id = '' } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const [interestOpen, setInterestOpen] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [reviewReloadKey, setReviewReloadKey] = useState(0);
+  const interest = useMutation(ProductService.expressInterest);
 
   const { data: product, error, isLoading, reload } = useApi(
     () => ProductService.getById(id),
@@ -51,12 +50,20 @@ export function ProductDetailPage() {
 
   const isOwnListing = product.isOwnListing;
 
-  function handleInterest() {
+  async function handleInterest(productTitle: string) {
     if (!isAuthenticated) {
       navigate(`/login?next=${encodeURIComponent(`/products/${id}`)}`);
       return;
     }
-    setInterestOpen(true);
+
+    try {
+      const response = await interest.run(id, {
+        message: `Hi, I'm interested in this listing: ${productTitle}. Is it still available? I'd like to discuss delivery options, timing, and payment.`,
+      });
+      navigate(`/chat/${response.interactionId}`);
+    } catch {
+      // The mutation owns the visible error state.
+    }
   }
 
   return (
@@ -108,11 +115,17 @@ export function ProductDetailPage() {
               <Button
                 size="lg"
                 fullWidth
-                onClick={handleInterest}
+                onClick={() => handleInterest(product.title)}
+                isLoading={interest.isLoading}
                 leftIcon={<ChatBubbleLeftRightIcon className="h-5 w-5" />}
               >
                 I'm interested
               </Button>
+              {interest.error && (
+                <p role="alert" className="text-sm text-red-600">
+                  {interest.error.detail}
+                </p>
+              )}
               <button
                 type="button"
                 onClick={() => (isAuthenticated ? setReportOpen(true) : navigate('/login'))}
@@ -151,12 +164,6 @@ export function ProductDetailPage() {
         <ReviewList productId={product.id} reloadKey={reviewReloadKey} />
       </section>
 
-      <ExpressInterestDialog
-        productId={product.id}
-        productTitle={product.title}
-        open={interestOpen}
-        onClose={() => setInterestOpen(false)}
-      />
       <ReviewFormDialog
         productId={product.id}
         open={reviewOpen}

@@ -19,8 +19,11 @@ const dateFmt = new Intl.DateTimeFormat('en-NG', {
   year: 'numeric',
 });
 
-export function formatDate(iso: string): string {
-  return dateFmt.format(new Date(iso));
+export function formatDate(iso: string | null | undefined): string {
+  if (!iso) return 'Date unavailable';
+
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? 'Date unavailable' : dateFmt.format(date);
 }
 
 /** "Lagos" stays "Lagos"; "AkwaIbom" → "Akwa Ibom" for display. Coerces defensively to a string. */

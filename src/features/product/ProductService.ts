@@ -8,7 +8,7 @@ import type {
   ReviewResponse,
 } from '@/features/product/product.types';
 
-/** Typed gateway for listing detail, reviews, and the WhatsApp lead hand-off (PDR §2.3–2.6). */
+/** Typed gateway for listing detail, buyer interactions, and reviews. */
 export const ProductService = {
   async getById(id: string): Promise<ProductDetail> {
     const { data } = await api.get<ProductDetail>(`/products/${id}`);
@@ -22,7 +22,7 @@ export const ProductService = {
     return data;
   },
 
-  /** Records a lead and returns the pre-filled wa.me link. Requires authentication. */
+  /** Records a buyer interaction and creates its in-app conversation. */
   async expressInterest(id: string, payload: ExpressInterestPayload): Promise<InterestResponse> {
     const { data } = await api.post<InterestResponse>(`/products/${id}/interest`, payload);
     return data;

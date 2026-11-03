@@ -3,10 +3,10 @@ import type { Session } from '@/shared/stores/authStore';
 import type { OtpRequestPayload, OtpVerifyPayload } from '@/features/auth/auth.types';
 
 /**
- * Typed gateway for the phone + OTP auth endpoints (PDR §1). Components call these — never axios.
+ * Typed gateway for the email + OTP auth endpoints. Components call these — never axios.
  */
 export const AuthService = {
-  /** Sends a one-time passcode to a Nigerian number. */
+  /** Sends a one-time passcode to an email address. */
   async requestOtp(payload: OtpRequestPayload): Promise<void> {
     await api.post('/auth/otp/request', payload);
   },

@@ -19,6 +19,8 @@ import { AdminDashboardPage } from '@/features/admin/AdminDashboardPage';
 import { AdminVendorsPage } from '@/features/admin/AdminVendorsPage';
 import { AdminListingsPage } from '@/features/admin/AdminListingsPage';
 import { AdminReportsPage } from '@/features/admin/AdminReportsPage';
+import { ChatPage } from '@/features/chat/ChatPage';
+import { ChatInboxPage } from '@/features/chat/ChatInboxPage';
 
 /** Application routes. Public, authenticated, vendor (RequireRole "vendor"), and admin areas. */
 export function App() {
@@ -46,6 +48,22 @@ export function App() {
           element={
             <RequireAuth>
               <NotificationsPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="chat/:id"
+          element={
+            <RequireAuth>
+              <ChatPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="chat"
+          element={
+            <RequireAuth>
+              <ChatInboxPage />
             </RequireAuth>
           }
         />

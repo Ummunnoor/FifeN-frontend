@@ -28,7 +28,7 @@ export function DiscoveryPage() {
       <header className="mb-6">
         <h1 className="text-2xl font-semibold text-slate-900">Discover listings</h1>
         <p className="mt-1 text-sm text-slate-600">
-          Browse verified vendors across Nigeria and connect on WhatsApp.
+          Browse verified vendors across Nigeria and chat with vendors in Trade9ja.
         </p>
       </header>
 

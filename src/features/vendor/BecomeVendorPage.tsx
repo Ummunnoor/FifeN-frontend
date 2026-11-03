@@ -21,8 +21,8 @@ export function BecomeVendorPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 lg:px-8">
       <PageHeader
-        title="Sell on TradeNaija"
-        description="Get verified to list products and receive buyer leads on WhatsApp."
+        title="Sell on Trade9ja"
+        description="Get verified to list products and receive buyer leads in your Trade9ja inbox."
       />
 
       {isLoading ? (

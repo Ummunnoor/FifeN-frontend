@@ -45,10 +45,9 @@ export interface ExpressInterestPayload {
   offerPrice?: number;
 }
 
-/** The recorded lead plus the pre-filled WhatsApp hand-off link. */
+/** The recorded buyer interaction, which identifies the in-app conversation. */
 export interface InterestResponse {
   interactionId: string;
-  whatsAppUrl: string;
 }
 
 export interface CreateReviewPayload {

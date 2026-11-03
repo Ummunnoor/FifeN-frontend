@@ -7,8 +7,8 @@ import { useAuthStore } from '@/shared/stores/authStore';
 import { AuthService } from '@/features/auth/AuthService';
 
 interface OtpVerifyFormProps {
-  phoneNumber: string;
-  onChangeNumber: () => void;
+  email: string;
+  onChangeEmail: () => void;
 }
 
 /**
@@ -16,7 +16,7 @@ interface OtpVerifyFormProps {
  * field is revealed and the user resubmits with both codes — the OTP challenge is not consumed
  * on that first failure (PDR §1.3).
  */
-export function OtpVerifyForm({ phoneNumber, onChangeNumber }: OtpVerifyFormProps) {
+export function OtpVerifyForm({ email, onChangeEmail }: OtpVerifyFormProps) {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const setSession = useAuthStore((s) => s.setSession);
@@ -38,7 +38,7 @@ export function OtpVerifyForm({ phoneNumber, onChangeNumber }: OtpVerifyFormProp
 
     try {
       const session = await run({
-        phoneNumber,
+        email,
         code: code.trim(),
         totpCode: mfaRequired ? totpCode.trim() : undefined,
       });
@@ -58,8 +58,8 @@ export function OtpVerifyForm({ phoneNumber, onChangeNumber }: OtpVerifyFormProp
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-5">
       <p className="text-sm text-slate-600">
-        Code sent to <span className="font-medium text-slate-900">{phoneNumber}</span>.{' '}
-        <button type="button" onClick={onChangeNumber} className="font-medium text-accent-600 hover:underline">
+        Code sent to <span className="font-medium text-slate-900">{email}</span>.{' '}
+        <button type="button" onClick={onChangeEmail} className="font-medium text-accent-600 hover:underline">
           Change
         </button>
       </p>

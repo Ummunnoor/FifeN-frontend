@@ -24,7 +24,8 @@ export function AppHeader() {
 
   const items: NavItem[] = [
     { to: '/', label: 'Browse', show: true },
-    { to: '/vendor/apply', label: 'Sell on TradeNaija', show: isAuthenticated && !isVendor },
+    { to: '/vendor/apply', label: 'Sell on Trade9ja', show: isAuthenticated && !isVendor },
+    { to: '/chat', label: 'Chats', show: isAuthenticated },
     { to: '/vendor/listings', label: 'My listings', show: isVendor },
     { to: '/vendor/leads', label: 'Leads', show: isVendor },
     { to: '/vendor/profile', label: 'Profile', show: isVendor },
@@ -41,7 +42,7 @@ export function AppHeader() {
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-accent-600 text-sm font-bold text-white">
               TN
             </span>
-            <span className="text-lg font-semibold text-slate-900">TradeNaija</span>
+            <span className="text-lg font-semibold text-slate-900">Trade9ja</span>
           </Link>
           <nav className="hidden items-center gap-1 md:flex">
             {visible.map((item) => (
