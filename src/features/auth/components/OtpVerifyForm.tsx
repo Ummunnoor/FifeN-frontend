@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Input } from '@/shared/components/Input';
 import { Button } from '@/shared/components/Button';
 import { useMutation } from '@/shared/hooks/useApi';
-import { useAuthStore } from '@/shared/stores/authStore';
+import { useAuthStore, type Session } from '@/shared/stores/authStore';
 import { AuthService } from '@/features/auth/AuthService';
 
 interface OtpVerifyFormProps {
@@ -11,49 +11,64 @@ interface OtpVerifyFormProps {
   onChangeEmail: () => void;
 }
 
-/**
- * Step 2 of login: verify the OTP. If the API replies "MFA required" (admins), the authenticator
- * field is revealed and the user resubmits with both codes — the OTP challenge is not consumed
- * on that first failure (PDR §1.3).
- */
 export function OtpVerifyForm({ email, onChangeEmail }: OtpVerifyFormProps) {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const setSession = useAuthStore((s) => s.setSession);
-
   const [code, setCode] = useState('');
-  const [totpCode, setTotpCode] = useState('');
-  const [mfaRequired, setMfaRequired] = useState(false);
   const [localError, setLocalError] = useState<string>();
-
   const { run, isLoading, error } = useMutation(AuthService.verifyOtp);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    if (!/^\d{6}$/.test(code.trim())) {
+    const cleanCode = code.replace(/\D/g, '').slice(0, 6);
+    if (!/^\d{6}$/.test(cleanCode)) {
       setLocalError('Enter the 6-digit code we sent you.');
       return;
     }
     setLocalError(undefined);
 
     try {
-      const session = await run({
-        email,
-        code: code.trim(),
-        totpCode: mfaRequired ? totpCode.trim() : undefined,
-      });
+      const result = await run({ email, code: cleanCode });
+      if (result.mfaEnrollmentRequired) {
+        const setupToken = result.mfaSetupToken;
+        if (!setupToken) {
+          throw new Error('The server did not provide an MFA setup token. Please try again.');
+        }
+        navigate('/login/mfa-enroll', {
+          state: { setupToken, email, next: params.get('next') },
+        });
+        return;
+      }
+      if (result.mfaVerificationRequired || result.requiresTotp) {
+        const challengeToken = result.mfaChallengeToken ?? result.tempToken;
+        if (!challengeToken) {
+          throw new Error('The server did not provide an MFA challenge token. Please try again.');
+        }
+        navigate('/login/totp', {
+          state: { tempToken: challengeToken, email, next: params.get('next') },
+        });
+        return;
+      }
+      if (!result.accessToken || !result.refreshToken || !result.expiresAtUtc || !result.user) {
+        throw new Error('The server returned an incomplete sign-in session. Please try again.');
+      }
+      const session: Session = {
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+        expiresAtUtc: result.expiresAtUtc,
+        user: result.user,
+      };
       setSession(session);
-      navigate(params.get('next') ?? '/', { replace: true });
+      navigate(session.user.isAdmin ? '/admin' : (params.get('next') ?? '/'), { replace: true });
     } catch (err) {
-      // "MFA required" → reveal the authenticator field and let the user resubmit.
-      if (err && typeof err === 'object' && 'title' in err && err.title === 'MFA required') {
-        setMfaRequired(true);
+      if (err instanceof Error && !(err && typeof err === 'object' && 'status' in err)) {
+        setLocalError(err.message);
       }
     }
   }
 
   const codeError = error?.fieldError('code') ?? localError;
-  const showGenericError = error && error.title !== 'MFA required' && !codeError;
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-5">
@@ -63,7 +78,6 @@ export function OtpVerifyForm({ email, onChangeEmail }: OtpVerifyFormProps) {
           Change
         </button>
       </p>
-
       <Input
         label="Verification code"
         inputMode="numeric"
@@ -71,37 +85,11 @@ export function OtpVerifyForm({ email, onChangeEmail }: OtpVerifyFormProps) {
         maxLength={6}
         placeholder="123456"
         value={code}
-        onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+        onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
         error={codeError}
       />
-
-      {mfaRequired && (
-        <Input
-          label="Authenticator code"
-          inputMode="numeric"
-          maxLength={6}
-          placeholder="6-digit code from your app"
-          value={totpCode}
-          onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
-          error={error?.fieldError('totpCode')}
-          hint="Your account has two-factor authentication enabled."
-        />
-      )}
-
-      {mfaRequired && error?.title === 'MFA required' && (
-        <p role="alert" className="text-sm text-amber-700">
-          {error.detail}
-        </p>
-      )}
-      {showGenericError && (
-        <p role="alert" className="text-sm text-red-600">
-          {error.detail}
-        </p>
-      )}
-
-      <Button type="submit" fullWidth size="lg" isLoading={isLoading}>
-        {mfaRequired ? 'Verify & sign in' : 'Verify'}
-      </Button>
+      {error && !codeError && <p role="alert" className="text-sm text-red-600">{error.detail}</p>}
+      <Button type="submit" fullWidth size="lg" isLoading={isLoading}>Verify</Button>
     </form>
   );
 }

@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import { AppLayout } from '@/shared/components/AppLayout';
 import { NotFoundPage } from '@/shared/components/NotFoundPage';
 import { LoginPage } from '@/features/auth/LoginPage';
+import { TotpVerifyPage } from '@/features/auth/TotpVerifyPage';
 import { MfaEnrollPage } from '@/features/auth/MfaEnrollPage';
 import { RequireAuth } from '@/features/auth/RequireAuth';
 import { RequireRole } from '@/features/auth/RequireRole';
@@ -27,6 +28,8 @@ export function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/login/totp" element={<TotpVerifyPage />} />
+      <Route path="/login/mfa-enroll" element={<MfaEnrollPage />} />
 
       <Route element={<AppLayout />}>
         {/* Public */}

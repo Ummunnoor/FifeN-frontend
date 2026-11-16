@@ -18,7 +18,10 @@ export const api: AxiosInstance = axios.create({
 const refreshClient = axios.create({ baseURL });
 
 // Endpoints that must never trigger the 401 → refresh loop.
-const AUTH_BYPASS = ['/auth/refresh', '/auth/otp/request', '/auth/otp/verify'];
+const AUTH_BYPASS = [
+  '/auth/refresh', '/auth/otp/request', '/auth/otp/verify', '/auth/mfa/login/verify',
+  '/auth/mfa/enroll', '/auth/mfa/verify',
+];
 
 function isAuthBypass(url: string | undefined): boolean {
   return !!url && AUTH_BYPASS.some((path) => url.includes(path));
@@ -27,7 +30,7 @@ function isAuthBypass(url: string | undefined): boolean {
 // --- Request interceptor: attach the bearer token. ---
 api.interceptors.request.use((config) => {
   const { accessToken } = authStore.getState();
-  if (accessToken) {
+  if (accessToken && !config.headers.Authorization) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
   return config;

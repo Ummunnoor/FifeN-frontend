@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ShieldCheckIcon } from '@heroicons/react/24/outline';
 import { PageHeader } from '@/shared/components/PageHeader';
 import { Card } from '@/shared/components/Card';
@@ -16,10 +16,13 @@ import { AuthService } from '@/features/auth/AuthService';
  */
 export function MfaEnrollPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const setupToken = (location.state as { setupToken?: string } | null)?.setupToken;
+  const email = (location.state as { email?: string } | null)?.email;
   const [code, setCode] = useState('');
   const [done, setDone] = useState(false);
 
-  const { data, error, isLoading, reload } = useApi(() => AuthService.enrollMfa(), []);
+  const { data, error, isLoading, reload } = useApi(() => AuthService.enrollMfa(setupToken), [setupToken]);
   const verify = useMutation(AuthService.verifyMfa);
 
   const secret = data ? new URL(data.otpAuthUri).searchParams.get('secret') : null;
@@ -27,7 +30,7 @@ export function MfaEnrollPage() {
   async function handleVerify(event: FormEvent) {
     event.preventDefault();
     if (!/^\d{6}$/.test(code.trim())) return;
-    await verify.run(code.trim());
+    await verify.run(code.trim(), setupToken);
     setDone(true);
   }
 
@@ -45,10 +48,10 @@ export function MfaEnrollPage() {
           <div>
             <h2 className="text-lg font-semibold text-slate-900">Two-factor authentication is on</h2>
             <p className="mt-1 text-sm text-slate-600">
-              Sign in again to refresh your session, then you'll have full admin access.
+              Your authenticator is ready. Sign in again to complete admin access.
             </p>
           </div>
-          <Button onClick={() => navigate('/login')}>Sign in again</Button>
+          <Button onClick={() => navigate('/login', { state: { email } })}>Sign in again</Button>
         </Card>
       ) : (
         <Card className="space-y-5 p-6">

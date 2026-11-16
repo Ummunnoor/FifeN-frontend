@@ -1,11 +1,15 @@
 import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Card } from '@/shared/components/Card';
 import { OtpRequestForm } from '@/features/auth/components/OtpRequestForm';
 import { OtpVerifyForm } from '@/features/auth/components/OtpVerifyForm';
 
 /** Two-step email + OTP sign-in. */
 export function LoginPage() {
-  const [email, setEmail] = useState<string | null>(null);
+  const location = useLocation();
+  const [email, setEmail] = useState<string | null>(
+    (location.state as { email?: string } | null)?.email ?? null,
+  );
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-accent-50 to-slate-50 px-4 py-12">
