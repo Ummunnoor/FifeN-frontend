@@ -2,7 +2,6 @@ import type {
   ListingStatus,
   NigerianState,
   PriceType,
-  ProductCondition,
   ProductSort,
 } from '@/shared/types/enums';
 
@@ -39,7 +38,8 @@ export interface ProductQuery {
   city?: string;
   minPrice?: number;
   maxPrice?: number;
-  condition?: ProductCondition;
+  size?: string;
+  color?: string;
   sort?: ProductSort;
   page?: number;
   pageSize?: number;

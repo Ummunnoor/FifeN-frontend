@@ -2,7 +2,6 @@ import type {
   ListingStatus,
   NigerianState,
   PriceType,
-  ProductCondition,
 } from '@/shared/types/enums';
 
 /** Create-a-listing payload (PDR §2.11). */
@@ -11,8 +10,9 @@ export interface CreateProductPayload {
   description: string;
   priceAmount: number;
   priceType: PriceType;
-  condition: ProductCondition;
   categoryId: string;
+  size?: string;
+  color?: string;
   state: NigerianState;
   city: string;
   attributes?: Record<string, string>;

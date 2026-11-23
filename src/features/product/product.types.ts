@@ -14,6 +14,8 @@ export interface ProductDetail {
   currency: string;
   priceType: PriceType;
   condition: ProductCondition;
+  size?: string | null;
+  color?: string | null;
   categoryName: string;
   state: NigerianState;
   city: string;

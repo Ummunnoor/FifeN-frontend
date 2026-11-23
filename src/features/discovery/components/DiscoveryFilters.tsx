@@ -5,9 +5,7 @@ import { Select } from '@/shared/components/Select';
 import { Button } from '@/shared/components/Button';
 import {
   NIGERIAN_STATES,
-  PRODUCT_CONDITIONS,
   type NigerianState,
-  type ProductCondition,
   type ProductSort,
 } from '@/shared/types/enums';
 import { humanizeEnum } from '@/shared/lib/format';
@@ -24,6 +22,14 @@ const SORT_OPTIONS: { value: ProductSort; label: string }[] = [
   { value: 'price_asc', label: 'Price: low to high' },
   { value: 'price_desc', label: 'Price: high to low' },
   { value: 'rating', label: 'Top rated' },
+];
+
+// Keep these lists local and easy to extend as the marketplace catalogue grows.
+const SIZE_OPTIONS = [
+  'XS', 'S', 'M', 'L', 'XL', 'XXL', '40', '41', '42', '43', '44', 'Free Size',
+];
+const COLOR_OPTIONS = [
+  'Black', 'White', 'Red', 'Blue', 'Green', 'Yellow', 'Pink', 'Brown', 'Grey', 'Multicolor',
 ];
 
 /**
@@ -104,11 +110,19 @@ export function DiscoveryFilters({ categories, value, onChange }: DiscoveryFilte
       </div>
 
       <Select
-        label="Condition"
-        placeholder="Any condition"
-        value={value.condition ?? ''}
-        onChange={(e) => set('condition', e.target.value as ProductCondition)}
-        options={PRODUCT_CONDITIONS.map((c) => ({ value: c, label: c }))}
+        label="Size"
+        placeholder="All sizes"
+        value={value.size ?? ''}
+        onChange={(e) => set('size', e.target.value)}
+        options={SIZE_OPTIONS.map((size) => ({ value: size, label: size }))}
+      />
+
+      <Select
+        label="Color"
+        placeholder="All colors"
+        value={value.color ?? ''}
+        onChange={(e) => set('color', e.target.value)}
+        options={COLOR_OPTIONS.map((color) => ({ value: color, label: color }))}
       />
 
       <Select

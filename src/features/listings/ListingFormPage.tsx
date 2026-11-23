@@ -11,10 +11,8 @@ import { useApi, useMutation } from '@/shared/hooks/useApi';
 import {
   NIGERIAN_STATES,
   PRICE_TYPES,
-  PRODUCT_CONDITIONS,
   type NigerianState,
   type PriceType,
-  type ProductCondition,
 } from '@/shared/types/enums';
 import { humanizeEnum } from '@/shared/lib/format';
 import { DiscoveryService } from '@/features/discovery/DiscoveryService';
@@ -27,19 +25,24 @@ interface FormState {
   description: string;
   priceAmount: string;
   priceType: PriceType;
-  condition: ProductCondition;
   categoryId: string;
+  size: string;
+  color: string;
   state: NigerianState | '';
   city: string;
 }
+
+const SIZE_OPTIONS = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Free Size', '40', '41', '42', '43', '44', '45', 'Others'];
+const COLOR_OPTIONS = ['Black', 'White', 'Red', 'Blue', 'Green', 'Yellow', 'Pink', 'Brown', 'Grey', 'Beige', 'Multicolor', 'Others'];
 
 const EMPTY: FormState = {
   title: '',
   description: '',
   priceAmount: '',
   priceType: 'Fixed',
-  condition: 'New',
   categoryId: '',
+  size: '',
+  color: '',
   state: '',
   city: '',
 };
@@ -67,8 +70,9 @@ export function ListingFormPage() {
         description: existing.description,
         priceAmount: String(existing.priceAmount),
         priceType: existing.priceType,
-        condition: existing.condition,
         categoryId: '', // category id is not in the detail projection; vendor re-selects on edit
+        size: existing.size ?? '',
+        color: existing.color ?? '',
         state: existing.state,
         city: existing.city,
       });
@@ -81,8 +85,9 @@ export function ListingFormPage() {
       description: state.description.trim(),
       priceAmount: Number(state.priceAmount) || 0,
       priceType: state.priceType,
-      condition: state.condition,
       categoryId: state.categoryId,
+      size: state.size || undefined,
+      color: state.color || undefined,
       state: state.state as NigerianState,
       city: state.city.trim(),
     };
@@ -162,18 +167,29 @@ export function ListingFormPage() {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Select
-              label="Condition"
-              value={form.condition}
-              onChange={(e) => set('condition', e.target.value as ProductCondition)}
-              options={PRODUCT_CONDITIONS.map((c) => ({ value: c, label: c }))}
-            />
-            <Select
               label="Category"
               placeholder="Select a category"
               value={form.categoryId}
               onChange={(e) => set('categoryId', e.target.value)}
               options={(categories ?? []).map((c) => ({ value: c.id, label: c.name }))}
               error={err('categoryId')}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Select
+              label="Size"
+              placeholder="Select Size"
+              value={form.size}
+              onChange={(e) => set('size', e.target.value)}
+              options={SIZE_OPTIONS.map((size) => ({ value: size, label: size }))}
+            />
+            <Select
+              label="Color"
+              placeholder="Select Color"
+              value={form.color}
+              onChange={(e) => set('color', e.target.value)}
+              options={COLOR_OPTIONS.map((color) => ({ value: color, label: color }))}
             />
           </div>
 
