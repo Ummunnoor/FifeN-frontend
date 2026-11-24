@@ -77,9 +77,21 @@ Suggested feature slices mirror the backend modules / PDR §2:
 
 ## Build & Run
 ```bash
-npm install
+npm ci
 npm run dev      # Vite dev server
+npm run lint     # ESLint
 npm run build    # production build
 npm run preview  # serve the build
 ```
 CORS on the backend is pre-configured for `http://localhost:5173` (Vite) and `http://localhost:3000`.
+
+## CI
+- GitHub Actions workflow: `.github/workflows/ci.yml`.
+- Runs on pushes to `main` and pull requests. It installs dependencies with `npm ci`, runs the linter,
+  runs tests when a `test` script is defined, and builds the production bundle.
+- npm dependencies are cached using `package-lock.json`. A NuGet package cache is also configured
+  for the backend if its .NET project is added to this repository.
+- Set the repository Actions variable `VITE_API_URL` to the API base URL used for CI builds. Vite
+  embeds `VITE_*` values in the client bundle, so they must not contain secrets. Keep deployment or
+  other private credentials in GitHub Actions secrets and expose them only to steps that need them.
+- There is currently no test script in `package.json`; add one when frontend tests are introduced.
